@@ -1,4 +1,4 @@
-package dao;
+package persistance.dao;
 
 import exception.NoResultException;
 import exception.PersistenceException;
@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import persistance.ConnectionPool;
 import persistance.models.Sale;
+import persistance.models.Sale.SaleBuilder;
 
 public class SaleDao extends Dao<Sale>{
     private static final String SAVE_SQL =
@@ -29,7 +30,7 @@ public class SaleDao extends Dao<Sale>{
 
     @Override
     public Sale save(Sale sale) {
-        try (Connection connection = ConnectionPool.getConnection();
+        try (Connection connection = ConnectionPool.get();
             PreparedStatement statement =
                 connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
             statement.setInt(1, sale.getProduct().getId());
@@ -57,12 +58,13 @@ public class SaleDao extends Dao<Sale>{
         try {
             int clientId = resultSet.getInt("client_id");
             int productId = resultSet.getInt("product_id");
-            return new Sale(
-                resultSet.getInt("id"),
-                productDao.findOneById(productId).orElseThrow(),
-                clientDao.findOneById(clientId).orElseThrow(),
-                resultSet.getInt("quantity"),
-                resultSet.getDate("sale_date").toLocalDate());
+            return new SaleBuilder()
+                .id(resultSet.getInt("id"))
+                .product(productDao.findOneById(productId).orElseThrow())
+                .client(clientDao.findOneById(clientId).orElseThrow())
+                .quantity(resultSet.getInt("quantity"))
+                .date(resultSet.getDate("sale_date").toLocalDate())
+                .build();
 
         } catch (SQLException e) {
             throw new NoResultException(

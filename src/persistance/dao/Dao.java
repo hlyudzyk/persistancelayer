@@ -1,4 +1,4 @@
-package dao;
+package persistance.dao;
 
 import exception.EntityNotFoundException;
 import exception.PersistenceException;
@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.h2.engine.Mode;
 import persistance.ConnectionPool;
 import persistance.models.Model;
 
@@ -18,7 +17,7 @@ public abstract class Dao<M extends Model> {
     final String findByIdSql = "%s WHERE id = ?".formatted(findAllSql);
 
     public Optional<M> findOneById(int id){
-        try (Connection connection = ConnectionPool.getConnection();
+        try (Connection connection = ConnectionPool.get();
             PreparedStatement statement = connection.prepareStatement(findByIdSql)) {
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
@@ -33,7 +32,7 @@ public abstract class Dao<M extends Model> {
     }
 
     public List<M> findAll() {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = ConnectionPool.get();
             var statement = connection.prepareStatement(findAllSql)) {
             var resultSet = statement.executeQuery();
             List<M> entities = new ArrayList<>(resultSet.getFetchSize());
@@ -49,7 +48,7 @@ public abstract class Dao<M extends Model> {
     public boolean delete(final int id) {
         final String DELETE_SQL = "DELETE FROM %s WHERE id = ?;".formatted(getTableName());
 
-        try (Connection connection = ConnectionPool.getConnection();
+        try (Connection connection = ConnectionPool.get();
             PreparedStatement statement = connection.prepareStatement(DELETE_SQL)) {
             statement.setInt(1, id);
 

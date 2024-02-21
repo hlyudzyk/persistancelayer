@@ -1,35 +1,47 @@
 package persistance.models;
 
-public class Client extends Model{
+public class Client extends Model {
     private String name;
     private String email;
 
-
-
-    public Client(String name, String email) {
-        this.name = name;
-        this.email = email;
-    }
-
-    public Client(int id, String name, String email) {
-        this.setId(id);
-        this.name = name;
-        this.email = email;
+    private Client(ClientBuilder clientBuilder) {
+        this.setId(clientBuilder.id);
+        this.name = clientBuilder.name;
+        this.email = clientBuilder.email;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public static class ClientBuilder {
+        private int id;
+        private String name;
+        private String email;
+
+        public ClientBuilder() {}
+
+        public ClientBuilder id(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public ClientBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public ClientBuilder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Client build() {
+            return new Client(this);
+        }
     }
 }

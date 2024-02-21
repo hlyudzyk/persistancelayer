@@ -2,57 +2,76 @@ package persistance.models;
 
 import java.time.LocalDate;
 
-public class Sale extends Model{
+public class Sale extends Model {
     private Product product;
     private Client client;
     private int quantity;
     private LocalDate date;
 
-    public Sale(Product product, Client client, int quantity, LocalDate date) {
-        this.product = product;
-        this.client = client;
-        this.quantity = quantity;
-        this.date = date;
+    private Sale(SaleBuilder saleBuilder) {
+        this.setId(saleBuilder.id);
+        this.product = saleBuilder.product;
+        this.client = saleBuilder.client;
+        this.quantity = saleBuilder.quantity;
+        this.date = saleBuilder.date;
     }
 
-    public Sale(int id,Product product, Client client, int quantity, LocalDate date) {
-        this.setId(id);
-        this.product = product;
-        this.client = client;
-        this.quantity = quantity;
+    public void setDate(LocalDate date) {
         this.date = date;
     }
-
 
     public Product getProduct() {
         return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
     }
 
     public Client getClient() {
         return client;
     }
 
-    public void setClient(Client client) {
-        this.client = client;
-    }
-
     public int getQuantity() {
         return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
     }
 
     public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public static class SaleBuilder {
+        private int id;
+        private Product product;
+        private Client client;
+        private int quantity;
+        private LocalDate date;
+
+        public SaleBuilder() {}
+
+        public SaleBuilder id(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public SaleBuilder product(Product product) {
+            this.product = product;
+            return this;
+        }
+
+        public SaleBuilder client(Client client) {
+            this.client = client;
+            return this;
+        }
+
+        public SaleBuilder quantity(int quantity) {
+            this.quantity = quantity;
+            return this;
+        }
+
+        public SaleBuilder date(LocalDate date) {
+            this.date = date;
+            return this;
+        }
+
+        public Sale build() {
+            return new Sale(this);
+        }
     }
 }

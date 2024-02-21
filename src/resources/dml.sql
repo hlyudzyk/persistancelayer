@@ -1,3 +1,4 @@
+
 INSERT INTO Categories (name) VALUES
                                   ('Electronics'),
                                   ('Clothing'),

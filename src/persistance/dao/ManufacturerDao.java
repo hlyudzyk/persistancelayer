@@ -1,4 +1,4 @@
-package dao;
+package persistance.dao;
 
 import exception.NoResultException;
 import exception.PersistenceException;
@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import persistance.ConnectionPool;
 import persistance.models.Manufacturer;
+import persistance.models.Manufacturer.ManufacturerBuilder;
 
 public class ManufacturerDao extends Dao<Manufacturer> {
     private static final String SAVE_SQL =
@@ -27,7 +28,7 @@ public class ManufacturerDao extends Dao<Manufacturer> {
 
     @Override
     public boolean update(Manufacturer manufacturer) {
-        try (Connection connection = ConnectionPool.getConnection();
+        try (Connection connection = ConnectionPool.get();
             PreparedStatement statement = connection.prepareStatement(UPDATE_SQL)) {
             statement.setString(1, manufacturer.getName());
             statement.setString(2, manufacturer.getCountry());
@@ -42,7 +43,7 @@ public class ManufacturerDao extends Dao<Manufacturer> {
 
     @Override
     public Manufacturer save(Manufacturer manufacturer) {
-        try (Connection connection = ConnectionPool.getConnection();
+        try (Connection connection = ConnectionPool.get();
             PreparedStatement statement =
                 connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, manufacturer.getName());
@@ -64,8 +65,11 @@ public class ManufacturerDao extends Dao<Manufacturer> {
     @Override
     protected Manufacturer buildEntity(ResultSet resultSet) {
         try {
-            return new Manufacturer(resultSet.getInt("id"),resultSet.getString("name"),
-                resultSet.getString("country"));
+            return new ManufacturerBuilder()
+                .id(resultSet.getInt("id"))
+                .name(resultSet.getString("name"))
+                .country(resultSet.getString("country"))
+                .build();
         } catch (SQLException e) {
             throw new NoResultException(
                 "Не вдалось отримати ResultSet");

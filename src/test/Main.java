@@ -1,15 +1,17 @@
 package test;
 
-import dao.CategoryDao;
-import dao.ManufacturerDao;
-import dao.ProductDao;
-import dao.SaleDao;
+import exception.ConnectionException;
+import persistance.dao.CategoryDao;
+import persistance.dao.ManufacturerDao;
+import persistance.dao.ProductDao;
+import persistance.dao.SaleDao;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Optional;
 import persistance.ConnectionPool;
 import persistance.DbInitialization;
 import persistance.models.Manufacturer;
+import persistance.models.Manufacturer.ManufacturerBuilder;
 import persistance.models.Product;
 
 public class Main {
@@ -18,14 +20,15 @@ public class Main {
         try {
             DbInitialization.apply();
 
-            Connection con = ConnectionPool.getConnection();
+            Connection con = ConnectionPool.get();
             CategoryDao categoryDao = CategoryDao.getInstance();
             SaleDao saleDao = SaleDao.getInstance();
             ManufacturerDao manufacturerDao = ManufacturerDao.getInstance();
             ProductDao productDao = ProductDao.getInstance();
 
 
-            Manufacturer manufacturer = new Manufacturer("Adidas","Germany");
+            Manufacturer manufacturer = new ManufacturerBuilder()
+            .name("Puma").country("Germany").build();
             manufacturerDao.save(manufacturer);
 
 
@@ -41,10 +44,8 @@ public class Main {
                 System.out.println(pr.getId() + "\t" + pr.getName() + "\t" + pr.getCategory().getName() + "\t"+
                     pr.getManufacturer().getName());
             }
-
-
-
-        } catch (SQLException e) {
+        }
+        catch (Exception e) {
             throw new RuntimeException(e);
         }
 

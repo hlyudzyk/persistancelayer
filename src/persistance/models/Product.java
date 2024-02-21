@@ -6,19 +6,12 @@ public class Product extends Model {
     private Manufacturer manufacturer;
     private double price;
 
-    public Product(String name, Category category, Manufacturer manufacturer, double price) {
-        this.name = name;
-        this.category = category;
-        this.manufacturer = manufacturer;
-        this.price = price;
-    }
-
-    public Product(int id,String name, Category category, Manufacturer manufacturer, double price) {
-        this.setId(id);
-        this.name = name;
-        this.category = category;
-        this.manufacturer = manufacturer;
-        this.price = price;
+    private Product(ProductBuilder productBuilder) {
+        this.setId(productBuilder.id);
+        this.name = productBuilder.name;
+        this.category = productBuilder.category;
+        this.manufacturer = productBuilder.manufacturer;
+        this.price = productBuilder.price;
     }
 
     public String getName() {
@@ -51,5 +44,44 @@ public class Product extends Model {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public static class ProductBuilder {
+        private int id;
+        private String name;
+        private Category category;
+        private Manufacturer manufacturer;
+        private double price;
+
+        public ProductBuilder() {}
+
+        public ProductBuilder id(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public ProductBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public ProductBuilder category(Category category) {
+            this.category = category;
+            return this;
+        }
+
+        public ProductBuilder manufacturer(Manufacturer manufacturer) {
+            this.manufacturer = manufacturer;
+            return this;
+        }
+
+        public ProductBuilder price(double price) {
+            this.price = price;
+            return this;
+        }
+
+        public Product build() {
+            return new Product(this);
+        }
     }
 }

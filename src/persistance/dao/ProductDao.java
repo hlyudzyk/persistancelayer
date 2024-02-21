@@ -1,4 +1,4 @@
-package dao;
+package persistance.dao;
 
 import exception.NoResultException;
 import exception.PersistenceException;
@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import persistance.ConnectionPool;
 import persistance.models.Product;
+import persistance.models.Product.ProductBuilder;
 
 public class ProductDao extends Dao<Product>{
     private static final String SAVE_SQL =
@@ -27,7 +28,7 @@ public class ProductDao extends Dao<Product>{
   """;
     @Override
     public boolean update(Product product) {
-        try (Connection connection = ConnectionPool.getConnection();
+        try (Connection connection = ConnectionPool.get();
             PreparedStatement statement = connection.prepareStatement(UPDATE_SQL)) {
             statement.setString(1, product.getName());
             statement.setInt(2, product.getCategory().getId());
@@ -45,7 +46,7 @@ public class ProductDao extends Dao<Product>{
 
     @Override
     public Product save(Product product) {
-        try (Connection connection = ConnectionPool.getConnection();
+        try (Connection connection = ConnectionPool.get();
             PreparedStatement statement =
                 connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, product.getName());
@@ -73,12 +74,13 @@ public class ProductDao extends Dao<Product>{
         try {
             int categoryId = resultSet.getInt("category_id");
             int manufacturerId = resultSet.getInt("manufacturer_id");
-            return new Product(
-                resultSet.getInt("id"),
-                resultSet.getString("name"),
-                categoryDao.findOneById(categoryId).orElseThrow(),
-                manufacturerDao.findOneById(manufacturerId).orElseThrow(),
-                resultSet.getInt("price"));
+            return new ProductBuilder()
+                .id(resultSet.getInt("id"))
+                .name(resultSet.getString("name"))
+                .category(categoryDao.findOneById(categoryId).orElseThrow())
+                .manufacturer(manufacturerDao.findOneById(manufacturerId).orElseThrow())
+                .price(resultSet.getInt("price"))
+                .build();
 
         } catch (SQLException e) {
             throw new NoResultException(

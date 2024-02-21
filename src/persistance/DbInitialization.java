@@ -2,17 +2,12 @@ package persistance;
 
 import exception.PersistenceException;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /** Temp class, using only for initialization DB for learn/test new features. */
@@ -23,9 +18,9 @@ public final class DbInitialization {
     /** Read ddl.sql and dml.sql from resources and apply it to database. */
     public static void apply() {
         getSqlFromFile("ddl.sql");
-        try (Connection connection = ConnectionPool.getConnection();
-                Statement statementForDDL = connection.createStatement()){
-                //Statement statementForDML = connection.createStatement()) {
+        try (Connection connection = ConnectionPool.get();
+            Statement statementForDDL = connection.createStatement()){
+              //  Statement statementForDML = connection.createStatement()) {
             statementForDDL.execute(getSqlFromFile("ddl.sql"));
             //statementForDML.execute(getSqlFromFile("dml.sql"));
         } catch (SQLException e) {
@@ -51,7 +46,7 @@ public final class DbInitialization {
                 };*/
 
         try (var stream = Files.lines(Path.of("src","resources",resourceName), StandardCharsets.UTF_8)) {
-            String result =  stream.collect(Collectors.joining("\n"));
+            String result = stream.collect(Collectors.joining("\n"));
             return result;
         } catch (IOException e) {
             throw new PersistenceException("Помилка, під час зчитування DLL чи DML файлу.");
